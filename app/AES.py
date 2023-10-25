@@ -6,6 +6,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import asymmetric
+import os
 
 def encrypt_AES(key, plaintext):
     backend = default_backend()
@@ -26,8 +27,12 @@ def decrypt_AES(key, ciphertext):
     return unpadded_data
 
 # Example usage:
-key = get_random_bytes(16)  # 128-bit key
+key = os.urandom(16)  # 128-bit key
+print("Generated Key: ",key)
 plaintext = b"Hello, world!"
 ciphertext = encrypt_AES(key, plaintext)
+print(type(ciphertext))
+print("Decoded Cipher text: ",ciphertext)
 decrypted_text = decrypt_AES(key, ciphertext)
-print(decrypted_text.decode())
+print("Decrypted text raw form: ",decrypted_text)
+print("Decrypted text: ",decrypted_text.decode())

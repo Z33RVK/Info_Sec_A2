@@ -7,4 +7,4 @@ def hash_SHA256(data):
 # Example usage:
 data = b"Hello, world!"
 hashed_data = hash_SHA256(data)
-print(hashed_data)
+print("Hashed data: ",hashed_data)

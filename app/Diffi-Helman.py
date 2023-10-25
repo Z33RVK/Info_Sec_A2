@@ -1,16 +1,17 @@
-from Crypto.Util.number import getRandomRange
+from cryptography.hazmat.primitives.asymmetric import dh
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.backends import default_backend
 
 def diffie_hellman():
-    p = 23  # prime modulus
-    g = 5   # generator
-    a = getRandomRange(1, p)  # private key for party A
-    b = getRandomRange(1, p)  # private key for party B
+    parameters = dh.generate_parameters(generator=2, key_size=2048, backend=default_backend())
+    private_key_A = parameters.generate_private_key()
+    private_key_B = parameters.generate_private_key()
 
-    A = pow(g, a, p)  # public key for party A
-    B = pow(g, b, p)  # public key for party B
+    public_key_A = private_key_A.public_key()
+    public_key_B = private_key_B.public_key()
 
-    shared_secret_A = pow(B, a, p)  # shared secret for party A
-    shared_secret_B = pow(A, b, p)  # shared secret for party B
+    shared_secret_A = private_key_A.exchange(public_key_B)
+    shared_secret_B = private_key_B.exchange(public_key_A)
 
     return shared_secret_A == shared_secret_B
 
