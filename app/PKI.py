@@ -3,6 +3,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 from cryptography.x509.oid import NameOID
+import datetime
 
 def generate_self_signed_cert():
     # Generate a private key
