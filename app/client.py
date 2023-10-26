@@ -66,9 +66,8 @@ def main():
 
 @app.route('/')
 def index():
-    return render_template('./templates/client.html')
+    return render_template('client.html')
 
 
 if __name__ == '__main__':
-    app.run(host='localhost', port=5000)
-    main()
+    app.run(debug=True)

@@ -64,12 +64,11 @@ class Server:
 
 @app.route('/')
 def index():
-    return render_template('./templates/server.html')
+    return render_template('server.html')
 
 
 def main():
     
-    request.get("http//127.0.0.1:5000/")
     # Server configuration
     server_host = 'localhost'
     server_port = 1234
@@ -82,5 +81,4 @@ def main():
 
 
 if __name__ == '__main__':
-    app.run(host='localhost', port=5000)
-    main()
+    app.run(debug=True)
