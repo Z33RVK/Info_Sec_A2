@@ -8,10 +8,26 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import dh
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hmac
+from cryptography.hazmat.backends import default_backend
 from cryptography.fernet import Fernet
 from flask import Flask, render_template
+import EncryptedSocket
+import random
+from cryptography.hazmat.backends import default_backend
+import hashlib
+
+prime = 23
+generator = 5
 
 app = Flask(__name__)
+
+def receive_message(client_socket):
+    data = client_socket.recv(1024).decode()
+    return data
+
+def send_message(client_socket, message):
+    client_socket.send(message.encode())
+
 
 class Server:
     def __init__(self, host, port, certfile, keyfile):
@@ -19,49 +35,59 @@ class Server:
         self.port = port
         self.certfile = certfile
         self.keyfile = keyfile
-
-    def start(self):
-        # Create a socket object
+        
+    def create_server_socket(self):
+        # Create a TCP/IP socket
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        
+        # Replace with your desired host and port
+        server_address = ('localhost', 8282)  
+        
+        # Bind the socket to a specific host and port
+        server_socket.bind(server_address)
 
-        # Wrap the socket with SSL/TLS
-        context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-        context.load_cert_chain(certfile=self.certfile, keyfile=self.keyfile)
-        secure_socket = context.wrap_socket(server_socket, server_side=True)
+        # Return the configured server socket
+        return server_socket
+            
+    def start(self):
+        # Server-side implementation
 
-        # Bind the socket to the host and port
-        secure_socket.bind((self.host, self.port))
+        # Generate a server certificate signed by a trusted CA or self-signed
+        server_certificate = self.certfile
+        print("1-Setting certificate.")
 
-        # Listen for incoming connections
-        secure_socket.listen(1)
+        # Start listening for incoming connections
+        print("2-Setting server socket")
+        server_socket = self.create_server_socket()
 
+        server_socket.listen(1)
+        print(f"3-listening on localhost:8282")
+        client_socket, client_address = server_socket.accept()
+        
+        # Accept a client connection
+        print("Connected to client:", client_address)
+        
+        # Receive and send messages
         while True:
-            print("Waiting for client connection...")
-            client_socket, address = secure_socket.accept()
-            print("Client connected:", address)
+            received_data = receive_message(client_socket)
+            if received_data == 'quit':
+                break
 
-            # Handle the client connection
-            # Implement the necessary security features for communication with the client
+            print("Client:", received_data)
 
-            # Encryption/Decryption using AES
-            # ...
+            # Process the received data, if needed
+
+            # Send a response
+            message = input("You: Enter a message (or 'quit' to exit): ")
+            send_message(client_socket, message)
             
-            # Hashing using SHA256
-            # ...
-            
-            # Diffie-Hellman Key Exchange
-            # ...
-            
-            # RSA Encryption/Decryption
-            # ...
-            
-            # PKI Certificate Generation/Signing/Verification
-            # ...
-
-            # Close the client socket
-            client_socket.close()
+            if message == 'quit':
+                break
 
 
+        server_socket.close()
+        
+        
 @app.route('/')
 def index():
     return render_template('server.html')
@@ -76,9 +102,11 @@ def main():
     server_keyfile = 'server.key'
 
     # Start the server
+    print("Starting the server")
     server = Server(server_host, server_port, server_certfile, server_keyfile)
     server.start()
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    main()
+    #app.run(debug=True, port=5000)

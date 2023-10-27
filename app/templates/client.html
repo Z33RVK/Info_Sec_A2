@@ -1,13 +1,62 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Client UI</title>
+    <title>Chat</title>
+    <style>
+        #chatbox {
+            height: 300px;
+            width: 400px;
+            overflow-y: scroll;
+            border: 1px solid #000;
+        }
+
+        #message {
+            width: 300px;
+        }
+
+        #sendButton {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Client Interface</h1>
-    
-    <!-- Add your client UI elements here -->
-    
-    <script src="client.js"></script>
+    <div id="chatbox"></div>
+    <input type="text" id="message" placeholder="Enter a message">
+    <button id="sendButton">Send</button>
+
+    <script>
+        const chatbox = document.getElementById('chatbox');
+        const messageInput = document.getElementById('message');
+        const sendButton = document.getElementById('sendButton');
+        const serverSocket = "{{ server_socket }}";
+        const socket = new WebSocket(serverSocket);
+
+        socket.onopen = function() {
+            console.log('Connected to server');
+        };
+
+        socket.onmessage = function(event) {
+            const message = event.data;
+            displayMessage('Server', message);
+        };
+
+        socket.onclose = function() {
+            console.log('Connection closed');
+        };
+
+        sendButton.addEventListener('click', function() {
+            const message = messageInput.value;
+            displayMessage('You', message);
+            socket.send(message);
+            messageInput.value = '';
+        });
+
+        function displayMessage(sender, message) {
+            const newMessage = document.createElement('p');
+            newMessage.textContent = sender + ': ' + message;
+            chatbox.appendChild(newMessage);
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+    </script>
 </body>
 </html>
